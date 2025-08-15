@@ -22,6 +22,9 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       # 3. Build your project (adapt to your build command)
       - name: Build project
         run: ./gradlew clean buildZip
