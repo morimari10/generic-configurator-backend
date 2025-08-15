@@ -1,0 +1,10 @@
+name: 'Supplement Build'
+description: 'Supplements the build'
+outputs:
+  branch_name:
+    description: 'Extracted branch name'
+  repository_name:
+    description: 'Extracted repository name'
+runs:
+  using: 'node12'
+  main: 'index.js'

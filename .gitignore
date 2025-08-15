@@ -1,0 +1,41 @@
+# IntelliJ project files
+*.iml
+*.iws
+*.ipr
+.idea
+out
+node_modules
+
+# Eclipse project files
+.classpath
+.project
+.settings
+
+# Other files
+build
+.gradle
+.DS_Store
+*.pyc
+.venv
+.localstack
+
+devops/release/ansible/*-local.yml
+devops/release/ansible/deployment_config.yml
+devops/release/build_local.sh
+devops/release/local.sh
+devops/release/ansible/roles/update-config-json/files/*.json
+
+# Terraform files
+.terraform
+
+# VSCode Project files
+async-handler/bin/
+domain/bin/
+common/bin
+handler/bin/
+mail/bin/
+service/bin/
+storage/bin/
+utils/bin/
+test-utils/
+

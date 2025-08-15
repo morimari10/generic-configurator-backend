@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MainHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.se.handler.MainHandler
+      CodeUri: ./build/aws/handler-3.8.6-aws-local.zip
+      Timeout: 60
+      Runtime: java8
+      Events:
+        Proxy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+      Environment:
+        Variables:
+          AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 3048

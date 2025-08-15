@@ -1,0 +1,16 @@
+dependencies {
+
+    compile group: 'com.typesafe', name: 'config', version: "${configVersion}"
+    compile group: 'com.neovisionaries', name: 'nv-i18n', version: "${nv_i18nVersion}"
+    compile group: 'commons-fileupload', name: 'commons-fileupload', version: "${apacheCommonsFileuploadVersion}"
+    compile group: 'com.amazonaws.serverless', name: 'aws-serverless-java-container-core',
+            version: "${awsServerlessJavaCoreVersion}"
+    compile group: 'org.apache.commons', name: 'commons-email', version: "${commonsEmailVersion}"
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: "${awsSdkVersion}"
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: "${awsSdkVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "${jacksonVersion}"
+
+    testCompile group: 'com.openpojo', name: 'openpojo', version: "${openPojoVersion}"
+    testCompile project(':test-utils')
+}

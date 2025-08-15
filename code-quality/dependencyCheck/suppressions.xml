@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <suppress>
+        <notes>Dependency check recognizes se-configuration-model as another library and marks it as vulnerable.</notes>
+        <gav regex="true">^com\.se\.configuration:.*:.*$</gav>
+        <cve>CVE-2017-0373</cve>
+        <cve>CVE-2017-0374</cve>
+    </suppress>
+    <suppress>
+        <notes>This dependency is used by findbugs, and we are not using it in code.</notes>
+        <gav regex="true">^com\.apple:AppleJavaExtensions:.*$</gav>
+        <cpe>cpe:/a:apple:java</cpe>
+    </suppress>
+</suppressions>

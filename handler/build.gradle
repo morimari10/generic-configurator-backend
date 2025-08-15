@@ -1,0 +1,67 @@
+import org.gradle.api.java.archives.internal.DefaultManifest
+import org.gradle.api.internal.file.IdentityFileResolver
+
+dependencies {
+    compile project(':domain')
+    compile project(':service')
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: "${awsSdkVersion}"
+    compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: "${awsLambdaCoreVersion}"
+    compile group: 'com.amazonaws.serverless', name: 'aws-serverless-java-container-core',
+            version: "${awsServerlessJavaCoreVersion}"
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: "${apacheHttpComponentsVersion}"
+    compile group: 'com.typesafe', name: 'config', version: "${configVersion}"
+    compile group: 'org.apache.commons', name: 'commons-text', version: "${apacheCommonsTextVersion}"
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sns', version: "${awsSdkVersion}"
+    compile group: 'com.sparkjava', name: 'spark-core', version: "${sparkVersion}"
+    
+
+
+    testCompile project(':test-utils')
+}
+
+task generateManifest() {
+    doLast {
+        makeManifestFile()
+    }
+    outputs.upToDateWhen { false }
+}
+
+task buildZip(type: Zip, dependsOn: generateManifest) {
+    String env = project.hasProperty('env') ? project.env : 'local'
+    from compileJava
+    from processResources
+    into('META-INF') {
+        from "${project.buildDir}/META-INF"
+    }
+    into('lib') {
+        from configurations.runtime
+    }
+    destinationDir file("${project.buildDir}/aws")
+    classifier("aws-${env}")
+}
+
+void makeManifestFile() {
+    File manifestFile = file("${project.buildDir}/META-INF/MANIFEST.MF")
+
+    def manifest = new DefaultManifest(new IdentityFileResolver())
+    def buildTimestamp = new Date().format("yyyy-MM-dd HH:mm:ss.SSSZ")
+    def buildHash = project.hasProperty("buildHash") ? project.buildHash : 'unknown'
+
+    manifest.attributes([
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" : "Schneider Electric SE",
+            "Implementation-Title"  : "Harmony+ Customisation Tool",
+            "Build-Timestamp"       : "${buildTimestamp}",
+            "Release"               : "${release}",
+            "Build-Hash"            : "${buildHash}"
+    ])
+    manifest.writeTo(manifestFile)
+}
+
+publishing.publications.mavenJava {
+    artifact buildZip
+}
+
+build.dependsOn buildZip

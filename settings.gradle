@@ -1,0 +1,11 @@
+rootProject.name = 'generic-configurator-backend'
+
+include 'async-handler'
+include 'domain'
+include 'common'
+include 'handler'
+include 'mail'
+include 'service'
+include 'storage'
+include 'test-utils'
+include 'utils'

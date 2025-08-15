@@ -1,0 +1,67 @@
+name: ia-services-backend sqe env
+
+on:
+  push:
+    branches:
+      - sqe
+  workflow_dispatch:
+jobs:
+  run-build-deploy:
+    runs-on: orchestrator-runner
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@2c7a4878f5d120bd643426d54ae1209b29cc01a3
+        with:
+          distribution: "temurin"
+          java-version: 8
+      - run: java -version
+      - name: Dowload tool_cache_python
+        run: |
+          mkdir Logs
+          wget https://www.se.com/ww/confsdl/mcc-front/artifacts/tool_cache_python.zip 1>Logs/tool_cache_download.log 
+          unzip tool_cache_python.zip -d $RUNNER_TOOL_CACHE/Python/ 1>>Logs/tool_cache_download.log
+          PATH=$PATH:$RUNNER_TOOL_CACHE/Python/3.6.8/x64/bin
+          chmod -R +x $RUNNER_TOOL_CACHE/Python/3.6.8/x64/bin
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.6.8
+      - name: Install pip
+        run: |
+          python -m ensurepip --upgrade
+          python -m pip install --upgrade pip
+
+      - name: Install python dependencies
+        run: |
+          pip3 install boto3 jinja2 pyyaml
+          pip3 install awscli
+      - name: Update recaptcha.verify.secret
+        run: sed  "s/RECAPTCHA_VERIFY_SECRET/${{ secrets.IAC_RECAPTCHA_KEY_PRIVATE }}/g" -i handler/src/main/resources/application-sqe.properties
+      - name: Update elbridge Bearer
+        run: sed  "s/BEARER_TOKEN_SECRET/${{ secrets.BEARER_TOKEN_ELBRIDGE_DEV_SQE_PPR }}/g" -i handler/src/main/resources/application-sqe.properties
+      - name: Build for SQE
+        run: ./gradlew clean buildZip
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@05b148adc31e091bafbaf404f745055d4d3bc9d2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_HPC_DEV_SQE }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_ID_HPC_DEV_SQE }}
+          aws-region: us-east-1
+      - name: Deploy zip in Lambda function
+        env:
+          AWS-LAMBDA: "handler-3.8.6-aws-local.zip"
+          AWS-LAMBDA-FUNCTION-NAME: "use-lambda-ia-services-configurator-sqe"
+          NB-LAMBDA-VERSION-TO-KEEP: 6
+        run: python3 devops/deployment/uploadLambdaOnS3.py
+      - name: Deploy API Gateway
+        env:
+          API_GATEWAY_NAME: use-api-ia-services-configurator-sqe
+          API_GATEWAY_DESCRIPTION: IA Services API Gateway SQE
+          API_GATEWAY_ENDPOINT_URI: "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:336640382051:function:use-lambda-ia-services-configurator-sqe/invocations"
+          API_GATEWAY_ID: eqbaeynn6g
+          API_GATEWAY_STAGE: sqe
+          REGION: eu-west-1
+          ACCOUNT_ID: 336640382051
+          AWS-LAMBDA-FUNCTION-NAME: use-lambda-ia-services-configurator-sqe
+          FE_BUCKET: euw-s3-hpc-front-sqe
+        run: python3 devops/deployment/aws_apigw_update.py

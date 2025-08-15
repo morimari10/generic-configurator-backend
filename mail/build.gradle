@@ -1,0 +1,12 @@
+dependencies {
+    compile project(':domain')
+    compile project(':utils')
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-ses', version: "${amazonSesVersion}"
+    compile group: 'org.apache.commons', name: 'commons-email', version: "${commonsEmailVersion}"
+    compile group: 'org.freemarker', name: 'freemarker', version: "${freemarkerVersion}"
+    compile group: 'org.apache.commons', name: 'commons-text', version: "${apacheCommonsTextVersion}"
+    compile group: 'commons-io', name: 'commons-io', version: "${apacheCommonsIOVersion}"
+    compile group: 'com.typesafe', name: 'config', version: "${configVersion}"
+
+}

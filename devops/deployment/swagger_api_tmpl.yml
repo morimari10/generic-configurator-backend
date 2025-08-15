@@ -1,0 +1,955 @@
+swagger: "2.0"
+info:
+  title: "skyray-api-dev"
+  version: "0.1"
+  description: "Skyray api dev."
+schemes:
+  - https
+  - http
+paths:
+  /generic-configurator/references-information:
+    post:
+      description: "Get references information data"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/energetic-needs:
+    post:
+      description: "Get energetic needs data"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/site-and-installation:
+    post:
+      description: "Get site and installation data"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/client-and-project:
+    post:
+      description: "Get client and project data"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/configuration-data:
+    post:
+      description: "Get configuration data"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/events/log:
+    post:
+      description: "Log event"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/update-configuration:
+    post:
+      description: "Update configuration"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/create-configuration:
+    post:
+      description: "Create configuration"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Result"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+    options:
+      description: "Enable CORS by returning correct headers"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: |
+            {
+              "statusCode" : 200
+            }
+        responses:
+          "default":
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS,PUT,PATCH'"
+              method.response.header.Access-Control-Allow-Origin: "context.requestOverride.header.origin"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            responseTemplates:
+              application/json: | 
+                #if($input.params().header.get('origin'))
+                #set($context.requestOverride.header.origin = $input.params().header.get('origin'))
+                #else
+                #set($context.requestOverride.header.origin = $input.params().header.get('Origin'))
+                #end
+                {}
+      responses:
+        200:
+          description: "Default response for CORS method"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+            Access-Control-Allow-Methods:
+              type: "string"
+              default: "POST,OPTIONS,PUT"
+            Access-Control-Allow-Headers:
+              type: "string"
+              default: "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+            Access-Control-Allow-Credentials:
+              type: "boolean"
+              default: true
+  /generic-configurator/session:
+    get:
+      description: "Create session"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: 200 response
+          schema:
+            "$ref": "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+              default: "*"
+      x-amazon-apigateway-integration:
+        type: "AWS_PROXY"
+        httpMethod: POST
+        uri: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+        passthroughBehavior: when_no_templates
+definitions:
+  QueryParameter:
+    type: string
+    title: QueryParameter
+  PathVariable:
+    type: string
+    title: PathVariable
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+  Input:
+    type: object
+    title: Input
+  Output:
+    type: object
+    title: Output
+  Result:
+    type: object
+    properties:
+      input:
+        "$ref": "#/definitions/Input"
+      output:
+        "$ref": "#/definitions/Output"
+    title: Result
+  Response:
+    type: object
+    properties:
+      code:
+        type: integer
+      payload:
+        type: object
+    required: [code, payload]
+  EventData:
+    type: object
+    properties:
+      configurationId:
+        type: string
+        maxLength: 20
+      configurationStatus:
+        type: string
+        maxLength: 30
+        enum: ["ADD_TO_MY_PRODUCTS", "SHARE_BY_EMAIL"]
+      metaInfo:
+        type: object
+x-amazon-apigateway-request-validators:
+  validateBody:
+    validateRequestParameters: false
+    validateRequestBody: true
+  validateParameters:
+    validateRequestParameters: true
+    validateRequestBody: false
+  validateAll:
+    validateRequestParameters: true
+    validateRequestBody: true
+x-amazon-apigateway-binary-media-types:
+  - "multipart/form-data"
+x-amazon-apigateway-gateway-responses:
+  BAD_REQUEST_BODY:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  BAD_REQUEST_PARAMETERS:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  UNSUPPORTED_MEDIA_TYPE:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  INTEGRATION_FAILURE:
+    statusCode: 500
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 500,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-INTEGRATION_FAILURE",
+            "errorTemplate":"Integration between gateway and lambda is failure",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  INTEGRATION_TIMEOUT:
+    statusCode: 500
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 500,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-TIMEOUT",
+            "errorTemplate":"Lambda is unavailable or connection has been timed out",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  MISSING_AUTHENTICATION_TOKEN:
+    statusCode: 404
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 404,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-NO_SUCH_ENDPOINT",
+            "errorTemplate":"No such endpoint found",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  ACCESS_DENIED:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  API_CONFIGURATION_ERROR:
+    statusCode: 520
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 520,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-UNKNOWN",
+            "errorTemplate":"Occurred unknown error",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  AUTHORIZER_FAILURE:
+    statusCode: 520
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 520,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-UNKNOWN",
+            "errorTemplate":"Occurred unknown error",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  AUTHORIZER_CONFIGURATION_ERROR:
+    statusCode: 520
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 520,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-UNKNOWN",
+            "errorTemplate":"Occurred unknown error",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  DEFAULT_4XX:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  DEFAULT_5XX:
+    statusCode: 520
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 520,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-UNKNOWN",
+            "errorTemplate":"Occurred unknown error",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  EXPIRED_TOKEN:
+    statusCode: 520
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 520,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-UNKNOWN",
+            "errorTemplate":"Occurred unknown error",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  INVALID_SIGNATURE:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  INVALID_API_KEY:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Invalid api key",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  QUOTA_EXCEEDED:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  REQUEST_TOO_LARGE:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  RESOURCE_NOT_FOUND:
+    statusCode: 404
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 404,
+          "payload":{
+            "values": [],
+            "errorCode":"ERR-NO_SUCH_ENDPOINT",
+            "errorTemplate":"No such endpoint found",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  THROTTLED:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }
+  UNAUTHORIZED:
+    statusCode: 400
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+    responseTemplates:
+      application/json: >
+        {
+          "code": 400,
+          "payload":{
+            "values": [],
+            "errorCode":"SE-BAD-REQUEST",
+            "errorTemplate":"Server could not understand the request due to invalid syntax",
+            "gatewayRequestId":"$context.requestId",
+            "message":$context.error.messageString,
+            "isApiGatewayError":true
+          }
+        }

@@ -1,0 +1,320 @@
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.ltgt.gradle', name: 'gradle-apt-plugin', version: "${gradleAptPluginVersion}"
+        classpath group: 'org.owasp', name: 'dependency-check-gradle', version: "${dependencycheckVersion}"
+        classpath group: 'org.sonarsource.scanner.gradle', name: 'sonarqube-gradle-plugin', version: "${sonarGradlePluginVersion}"
+    }
+}
+
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.sonarqube'
+
+    repositories {
+        mavenCentral()
+        if (project.hasProperty("localenv")) { // to use locally built dependencies use -Plocalenv
+            mavenLocal()
+        } else {
+            maven {
+                url "${applicationMavenRepoUrl}"
+            }
+        }
+    }
+
+    version = "${projectVersion}"
+    group = "${projectGroup}"
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectKey', "${sonarProjectKey}"
+        property 'sonar.projectName', "${sonarProjectName}"
+        property 'sonar.projectVersion', "Back-end version: ${projectVersion}, Release: ${release}"
+        property 'sonar.host.url', "${sonarHostURL}"
+        property 'sonar.java.source', "${sonarJavaSource}"
+        property 'sonar.sourceEncoding', "${sonarEncoding}"
+        property 'sonar.language', "${sonarLanguage}"
+        property 'sonar.login', "${sonarLogin}"
+        property 'sonar.password', "${sonarPassword}"
+        property 'sonar.links.homepage', "${sonarLinkHomePage}"
+        property 'sonar.links.ci', "${sonarLinkCI}"
+        property 'sonar.links.issue', "${sonarIssue}"
+        property 'sonar.links.scm', "${sonarSCM}"
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'net.ltgt.apt'
+    apply plugin: 'net.ltgt.apt-idea'
+    apply plugin: 'checkstyle'
+    apply plugin: 'pmd'
+    apply plugin: 'findbugs'
+    apply plugin: 'org.owasp.dependencycheck'
+    apply plugin: 'maven-publish'
+
+    dependencies {
+        compile group: 'com.google.guava', name: 'guava', version: "${guavaVersion}"
+        
+        compile group: 'com.amazonaws', name: 'aws-lambda-java-log4j2', version: "${awsLoggerVersion}"
+        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4CoreVersion}"
+        compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: "${log4CoreVersion}"
+        compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+        compile group: 'io.joshworks.unirest', name: 'unirest-java', version: "${unirestVersion}"
+
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: "${apacheCommonsVersion}"
+
+        compile group: 'com.google.dagger', name: 'dagger', version: "${daggerVersion}"
+        annotationProcessor group: 'com.google.dagger', name: 'dagger-compiler', version: "${daggerVersion}"
+
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+
+        testCompile group: 'junit', name: 'junit', version: "${junitVersion}"
+        testCompile group: 'nl.jqno.equalsverifier', name: 'equalsverifier', version: "${equalsverifierVersion}"
+        testCompile group: 'org.easymock', name: 'easymock', version: "${easymockVersion}"
+        testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: "${powermockVersion}"
+        testCompile group: 'org.powermock', name: 'powermock-api-easymock', version: "${powermockVersion}"
+
+        findbugs group: 'com.google.code.findbugs', name: 'findbugs', version: "${findBugsVersion}"
+        compile group: 'com.google.code.findbugs', name: 'annotations', version: "${findBugsVersion}"
+        findbugs configurations.findbugsPlugins.dependencies
+        findbugsPlugins group: 'com.h3xstream.findsecbugs', name: 'findsecbugs-plugin', version: "${findSecBugsVersion}"
+    }
+
+    checkstyle {
+        sourceSets = [sourceSets.main, sourceSets.test]
+        config = project.resources.text.fromFile("${project.rootProject.projectDir}/code-quality/checkstyle/checkstyle_rules.xml")
+        maxErrors = 0
+        ignoreFailures = false
+        toolVersion = "${checkStyleVersion}"
+    }
+
+    tasks.withType(Checkstyle) {
+        reports {
+            html.stylesheet(project.resources.text.fromFile(
+                    "${project.rootProject.projectDir}/code-quality/checkstyle/checkstyle-noframes-severity-sorted.xsl"))
+        }
+    }
+
+    pmd {
+        sourceSets = [sourceSets.main, sourceSets.test]
+        toolVersion = "${pmdVersion}"
+        ruleSetFiles = files("${project.rootProject.projectDir}/code-quality/pmd/pmd-rules.xml")
+        ruleSets = []
+        rulePriority = 5
+        ignoreFailures = false
+        incrementalAnalysis = true
+    }
+
+    tasks.withType(Pmd) {
+        reports {
+            html.enabled(true)
+            xml.enabled(false)
+        }
+        tasks[it.name].doLast {
+            generateHtmlReports('pmd', it.name, 'pmd-nicerhtml.xsl')
+        }
+    }
+
+    task findSecurityBugs(type: FindBugs) {
+        classes = fileTree(project.rootDir.absolutePath).include("**/*.class");
+        source = fileTree(project.rootDir.absolutePath).include("**/*.java");
+        classpath = files()
+        pluginClasspath = project.configurations.findbugsPlugins
+        findbugs {
+            toolVersion = "${findBugsVersion}"
+            sourceSets = [sourceSets.main, sourceSets.test]
+            ignoreFailures = false
+            reportsDir = file("$project.buildDir/reports/findbugsReports")
+            effort = "min"
+            reportLevel = 'medium'
+            includeFilter = file("${project.rootProject.projectDir}/code-quality/findbugs/findbugs_rules.xml")
+        }
+    }
+
+    tasks.withType(FindBugs) {
+        reports {
+            xml.enabled(false)
+            html.enabled(true)
+        }
+        tasks[it.name].doLast {
+            generateHtmlReports('findbugs', it.name, 'default.xsl')
+        }
+    }
+
+    jacoco {
+        toolVersion = "${jacocoVersion}"
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            csv.enabled false
+            html.destination file("${project.buildDir}/reports/jacoco/html")
+            xml.destination file("${project.buildDir}/reports/jacoco/xml/coverage.xml")
+        }
+        afterEvaluate {
+            classDirectories = files(classDirectories.files.collect {
+                fileTree(dir: it,
+                        exclude: [
+                                '**/*_MembersInjector.class',
+                                '**/Dagger*Component.class', // covers component implementations
+                                '**/Dagger*Component$Builder.class', // covers component builders
+                                '**/*Module_*Factory.class',
+                                '**/*_Factory.class'
+                        ])
+            })
+        }
+        finalizedBy(project.jacocoTestCoverageVerification)
+    }
+
+    jacocoTestCoverageVerification {
+        afterEvaluate {
+            classDirectories = files(classDirectories.files.collect {
+                fileTree(dir: it,
+                        exclude: [
+                                '**/*_MembersInjector.class',
+                                '**/Dagger*Component.class', // covers component implementations
+                                '**/Dagger*Component$Builder.class', // covers component builders
+                                '**/*Module_*Factory.class',
+                                '**/*_Factory.class'
+                        ])
+            })
+        }
+        violationRules {
+            rule {
+                element = 'BUNDLE'
+
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.0
+                }
+            }
+        }
+    }
+
+    //workaround till there is no offline instrumentation support in gradle jacoco plugin
+    task instrument(dependsOn: [classes, project.configurations.jacocoAnt]) {
+        inputs.files classes.outputs.files
+        File outputDir = new File(project.buildDir, 'instrumentedClasses')
+        outputs.dir outputDir
+        doFirst {
+            project.delete(outputDir)
+            ant.taskdef(
+                    resource: 'org/jacoco/ant/antlib.xml',
+                    classpath: project.configurations.jacocoAnt.asPath,
+                    uri: 'jacoco'
+            )
+            def instrumented = false
+            ['main'].each { sourceSetName ->
+                sourceSets[sourceSetName].output.classesDirs.each { classesDir ->
+                    if (file(classesDir).exists()) {
+                        def instrumentedClassedDir = "${outputDir}/${sourceSetName}"
+                        ant.'jacoco:instrument'(destdir: instrumentedClassedDir) {
+                            fileset(dir: classesDir, includes: '**/*.class')
+                        }
+                        //Replace the classes dir in the test classpath with the instrumented one
+                        sourceSets.test.runtimeClasspath -= files(classesDir)
+                        sourceSets.test.runtimeClasspath += files(instrumentedClassedDir)
+                        instrumented = true
+                    }
+                }
+            }
+            if (instrumented) {
+                //Disable class verification based on https://github.com/jayway/powermock/issues/375
+                test.jvmArgs += '-noverify'
+            }
+        }
+        outputs.upToDateWhen { false }
+    }
+
+    test {
+        jacoco {
+            append = false
+            destinationFile = file("${project.buildDir}/jacoco/jacocoTest.exec")
+            classDumpDir = file("${project.buildDir}/jacoco/classpathdumps")
+            excludes = [
+                    '**/*_MembersInjector.class',
+                    '**/Dagger*Component.class', // covers component implementations
+                    '**/Dagger*Component$Builder.class', // covers component builders
+                    '**/*Module_*Factory.class',
+                    '**/*_Factory.class'
+            ]
+        }
+        finalizedBy(project.jacocoTestReport)
+        dependsOn(project.instrument)
+        systemProperty 'environment', project.hasProperty('environment') ? "${project.environment}" : "LOCAL"
+    }
+
+    dependencyCheck {
+        suppressionFile = file("${project.rootProject.projectDir}/code-quality/dependencyCheck/suppressions.xml")
+    }
+
+    sonarqube {
+        properties {
+            property 'sonar.coverage.jacoco.xmlReportPaths', "${project.buildDir}/reports/jacoco/xml/coverage.xml"
+        }
+    }
+
+    task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+        String env = project.hasProperty('env') ? project.env : 'local'
+        from javadoc.destinationDir
+        classifier = "javadoc-${env}"
+    }
+
+    task packageSources(type: Jar, dependsOn: 'classes') {
+        String env = project.hasProperty('env') ? project.env : 'local'
+        from sourceSets.main.allSource
+        classifier = "sources-${env}"
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId("${projectGroup}")
+                artifactId("${project.name}")
+                version("${version}")
+                from components.java
+
+                artifact packageJavadoc
+                artifact packageSources
+            }
+        }
+        repositories {
+            maven {
+                url "${mavenRepoUrl}"
+                authentication {
+                    awsIm(AwsImAuthentication)
+                }
+            }
+        }
+    }
+}
+
+void generateHtmlReports(String toolName, String taskName, String templateName) {
+    def matcher = taskName =~ /([A-Z])\w+/
+    String sourceSetName = matcher.find() ? matcher.group().toLowerCase() : null
+    Path xmlReportPath = Paths.get("${project.buildDir}/reports/${toolName}", "${sourceSetName}.xml")
+    Path htmlReportPath = Paths.get("${project.buildDir}/reports/${toolName}", "${sourceSetName}.html")
+    if (Files.exists(xmlReportPath)) {
+        project.ant.xslt(
+                in: "$xmlReportPath",
+                out: "$htmlReportPath",
+                style: "${project.rootProject.projectDir}/code-quality/${toolName}/${templateName}",
+                destdir: "${project.buildDir}/reports/${toolName}"
+        )
+    }
+}

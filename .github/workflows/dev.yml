@@ -1,0 +1,58 @@
+name: Deploy to AWS Lambda & API Gateway
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Set up Java (adapt to your version)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      # 3. Build your project (adapt to your build command)
+      - name: Build project
+        run: ./gradlew clean buildZip
+
+      # 4. Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      # 5. Deploy ZIP to Lambda
+      - name: Update Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name skyray-configurator \
+            --zip-file fileb://handler/build/aws/handler-3.8.6-aws-local.zip
+
+      # 6. Deploy API Gateway (Swagger/OpenAPI)
+      - name: Deploy API Gateway
+        run: |
+          aws apigateway import-rest-api \
+            --body file://devops/deployment/swagger_api_tmpl.yml
+
+      # 7. (Optionnel) Publier le stage
+      - name: Deploy API Gateway Stage
+        run: |
+          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='skyray-api-dev'].id" --output text)
+          aws apigateway create-deployment --rest-api-id $API_ID --stage-name dev
+
+      # 8. (Optionnel) Notifier le succès
+      - name: Notify
+        run: echo "Déploiement terminé !"

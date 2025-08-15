@@ -1,0 +1,10 @@
+dependencies {
+    compile project(':common')
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-core', version: "${awsSdkVersion}"
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: "${awsSdkVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "${jacksonVersion}"
+
+    testCompile group: 'com.openpojo', name: 'openpojo', version: "${openPojoVersion}"
+}

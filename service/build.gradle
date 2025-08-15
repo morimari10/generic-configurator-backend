@@ -1,0 +1,22 @@
+dependencies {
+    compile project(':storage')
+    compile project(':mail')
+    compile project(':domain')
+    compile project(':utils')
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-lambda', version: "${awsSdkVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: "${jacksonVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "${jacksonVersion}"
+    compile group: 'com.se.maintain-and-build-service', name: 'se-maintain-and-build-service', version: "${maintainAndBuildServiceVersion}"
+
+    compile group: 'commons-io', name: 'commons-io', version: "${apacheCommonsIOVersion}"
+
+    compile group: 'commons-validator', name: 'commons-validator', version: "${apacheValidatorVersion}"
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: "${okHttpVersion}"
+    compile group: 'org.json', name: 'json', version: "${orgJsonVersion}"
+    compile group: 'org.apache.poi', name: 'poi', version: "${apachePoiVersion}"
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: "${apachePoiVersion}"
+
+    testCompile project(':test-utils')
+}

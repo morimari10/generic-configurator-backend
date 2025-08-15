@@ -1,0 +1,10 @@
+dependencies {
+    compile project(':domain')
+    compile project(':utils')
+
+    compile group: 'com.typesafe', name: 'config', version: "${configVersion}"
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: "${awsDynamoDBVersion}"
+    compile group: 'org.apache.commons', name: 'commons-text', version: "${apacheCommonsTextVersion}"
+
+    testCompile project(':test-utils')
+}
