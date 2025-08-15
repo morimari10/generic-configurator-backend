@@ -14,6 +14,11 @@ jobs:
       # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
       # 2. Set up Java (adapt to your version)
       - name: Set up Java
@@ -46,16 +51,15 @@ jobs:
 
       # 6. Deploy API Gateway (Swagger/OpenAPI)
       - name: Deploy API Gateway
-        run: |
-          aws apigateway import-rest-api \
-            --body file://devops/deployment/swagger_api_tmpl.yml
+        env:
+          API_GATEWAY_NAME: skyray-api-dev
+          API_GATEWAY_DESCRIPTION: Skyray API Gateway DEV
+          API_GATEWAY_ENDPOINT_URI: "arn:aws:apigateway:eu-west-3:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-3:851082400746:function:skyray-configurator/invocations"
+          API_GATEWAY_ID: ptihc77ly3
+          API_GATEWAY_STAGE: DEV
+          REGION: eu-west-3
+          ACCOUNT_ID: 851082400746
+          AWS-LAMBDA-FUNCTION-NAME-TOWERLIGHT: "skyray-configurator"
+          FE_BUCKET: s3-mm-lab
+        run: python3 devops/deployment/aws_apigw_update.py
 
-      # 7. (Optionnel) Publier le stage
-      - name: Deploy API Gateway Stage
-        run: |
-          API_ID=$(aws apigateway get-rest-apis --query "items[?name=='skyray-api-dev'].id" --output text)
-          aws apigateway create-deployment --rest-api-id $API_ID --stage-name dev
-
-      # 8. (Optionnel) Notifier le succès
-      - name: Notify
-        run: echo "Déploiement terminé !"
