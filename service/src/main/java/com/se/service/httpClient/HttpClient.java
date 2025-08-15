@@ -10,10 +10,6 @@ public interface HttpClient {
 
     String getMainTableContent(String mainGuideValue, String locale);
 
-    List<DocHolder> getSelectionGuideReferences(String mainGuideValue, String locale);
-
-    String getDescription(String crId, String locale);
-
     List<DocHolder> getSelectionGuide(String mainGuideValue, String locale, String productType);
 
     List<DocHolder> getSelection(List<SelectionCriteria> selectionCriterias, String mainGuideValue, String locale,

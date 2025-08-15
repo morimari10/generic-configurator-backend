@@ -128,12 +128,21 @@ public class HttpClientWrapper implements HttpClient {
         LOGGER.debug("Get Main table content for the Selection -[{}]", locale);
         Instant start = Instant.now();
         String mainGuide = mainGuideValue == null ? sncMainGuide : mainGuideValue;
-        String url = generateCoordinationUrl(sncSelectUrlTemplate, mainGuide, sncSoftware, locale);
-        String result = performHttpRequest(restClient.get(url)).body();
+        S3RetrieveDataService s3RetrieveDataService = new S3RetrieveDataService();
         Instant finish = Instant.now();
         LOGGER.info("[GET_MAIN_TABLE(S&C)] Time execution - [{}ms]",
                 Duration.between(start, finish).toMillis());
-        return result;
+        return s3RetrieveDataService.retrieveConfiguration(dataEnvironment, sncSoftware, mainGuide);
+
+        /*
+         * String url = generateCoordinationUrl(sncSelectUrlTemplate, mainGuide,
+         * sncSoftware, locale);
+         * String result = performHttpRequest(restClient.get(url)).body();
+         * Instant finish = Instant.now();
+         * LOGGER.info("[GET_MAIN_TABLE(S&C)] Time execution - [{}ms]",
+         * Duration.between(start, finish).toMillis());
+         * return result;
+         */
     }
 
     private String generateCoordinationUrl(String urlTemplate, String globalId, String software,
@@ -228,45 +237,53 @@ public class HttpClientWrapper implements HttpClient {
         }
         List<DocHolder> docHolders = httpConverter.extractDocs(combinatoryResult.getResult());
 
-       /*HttpResponse<String> cacheResponse = wrapperCacheResponses.getIfPresent(request.getUrl());
-        HttpResponse<String> response;
-        if (Objects.isNull(cacheResponse)) {
-            response = performHttpRequest(request);
-            wrapperCacheResponses.put(request.getUrl(), response);
-        } else {
-            response = cacheResponse;
-        }
-        List<DocHolder> docHolders = httpConverter.extractDocs(response.body());
-        while (response.isSuccessful()
-                && Optional.ofNullable(response.getHeaders())
-                        .map(value -> value.get(HttpClientConstants.NEXT_OFFSET_HEADER))
-                        .isPresent()) {
-            String startOffset = response.getHeaders().getFirst(HttpClientConstants.NEXT_OFFSET_HEADER);
-            LOGGER.debug("Attempt to get next page of process by the following offset - [{}]", startOffset);
-            try {
-                request = restClient.get(url)
-                        .queryString(HttpClientConstants.LIMIT_PARAM, PAGINATION)
-                        .queryString(HttpClientConstants.START_OFFSET_PARAM, startOffset);
-                for (SelectionCriteria selectionCriteria : selectionCriterias) {
-                    if (Objects.nonNull(selectionCriteria.getSelectedValue())
-                            && !Objects.equals(selectionCriteria.getSelectedValue(), GlobalConstants.N_A)) {
-                        request.queryString(selectionCriteria.getCriteria(), selectionCriteria.getSelectedValue());
-                    } else {
-                        break;
-                    }
-                }
-                cacheResponse = wrapperCacheResponses.getIfPresent(request.getUrl());
-                if (Objects.isNull(cacheResponse)) {
-                    response = performHttpRequest(request);
-                    wrapperCacheResponses.put(request.getUrl(), response);
-                } else {
-                    response = cacheResponse;
-                }
-                docHolders.addAll(httpConverter.extractDocs(response.body()));
-            } catch (SERuntimeException seRuntimeException) {
-                LOGGER.warn("No data found for the given startOffset-[{}]", startOffset);
-            }
-        }*/
+        /*
+         * HttpResponse<String> cacheResponse =
+         * wrapperCacheResponses.getIfPresent(request.getUrl());
+         * HttpResponse<String> response;
+         * if (Objects.isNull(cacheResponse)) {
+         * response = performHttpRequest(request);
+         * wrapperCacheResponses.put(request.getUrl(), response);
+         * } else {
+         * response = cacheResponse;
+         * }
+         * List<DocHolder> docHolders = httpConverter.extractDocs(response.body());
+         * while (response.isSuccessful()
+         * && Optional.ofNullable(response.getHeaders())
+         * .map(value -> value.get(HttpClientConstants.NEXT_OFFSET_HEADER))
+         * .isPresent()) {
+         * String startOffset =
+         * response.getHeaders().getFirst(HttpClientConstants.NEXT_OFFSET_HEADER);
+         * LOGGER.
+         * debug("Attempt to get next page of process by the following offset - [{}]",
+         * startOffset);
+         * try {
+         * request = restClient.get(url)
+         * .queryString(HttpClientConstants.LIMIT_PARAM, PAGINATION)
+         * .queryString(HttpClientConstants.START_OFFSET_PARAM, startOffset);
+         * for (SelectionCriteria selectionCriteria : selectionCriterias) {
+         * if (Objects.nonNull(selectionCriteria.getSelectedValue())
+         * && !Objects.equals(selectionCriteria.getSelectedValue(),
+         * GlobalConstants.N_A)) {
+         * request.queryString(selectionCriteria.getCriteria(),
+         * selectionCriteria.getSelectedValue());
+         * } else {
+         * break;
+         * }
+         * }
+         * cacheResponse = wrapperCacheResponses.getIfPresent(request.getUrl());
+         * if (Objects.isNull(cacheResponse)) {
+         * response = performHttpRequest(request);
+         * wrapperCacheResponses.put(request.getUrl(), response);
+         * } else {
+         * response = cacheResponse;
+         * }
+         * docHolders.addAll(httpConverter.extractDocs(response.body()));
+         * } catch (SERuntimeException seRuntimeException) {
+         * LOGGER.warn("No data found for the given startOffset-[{}]", startOffset);
+         * }
+         * }
+         */
         return docHolders;
     }
 
@@ -276,40 +293,60 @@ public class HttpClientWrapper implements HttpClient {
             String productType) {
         LOGGER.debug("[GET_SELECTION_GUIDE]Http client get the following product type - [{}]", productType);
         String globalId = findGuide(mainGuideValue, GUIDE_ID + productType, locale);
-        String url = generateCoordinationUrl(sncSearchUrlTemplate, globalId, sncSoftware, locale);
-        HttpRequest httpRequest = restClient.get(url)
-                .queryString(HttpClientConstants.LIMIT_PARAM, PAGINATION);
-        HttpResponse<String> cacheResponse = wrapperCacheResponses.getIfPresent(httpRequest.getUrl());
-        HttpResponse<String> response;
-        if (Objects.isNull(cacheResponse)) {
-            response = performHttpRequest(httpRequest);
-            wrapperCacheResponses.put(httpRequest.getUrl(), response);
-        } else {
-            response = cacheResponse;
+        String country = httpConverter.extractSnCCountry(locale);
+        String lang = httpConverter.extractSnCLang(locale);
+        S3RetrieveDataService s3RetrieveDataService = new S3RetrieveDataService();
+        CombinatoryLibraryResult combinatoryResult = null;
+        try {
+            combinatoryResult = s3RetrieveDataService.retrieveCombinatory(dataEnvironment,
+                    sncSoftware,
+                    globalId, country, lang, new HashMap<>(), new ArrayList<>(), Integer.MAX_VALUE, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        List<DocHolder> docHolders = httpConverter.extractDocs(response.body());
-        while (response.isSuccessful()
-                && Optional.ofNullable(response.getHeaders())
-                        .map(value -> value.get(HttpClientConstants.NEXT_OFFSET_HEADER))
-                        .isPresent()) {
-            String startOffset = response.getHeaders().getFirst(HttpClientConstants.NEXT_OFFSET_HEADER);
-            LOGGER.debug("Attempt to get next page of process by the following offset - [{}]", startOffset);
-            try {
-                httpRequest = restClient.get(url)
-                        .queryString(HttpClientConstants.START_OFFSET_PARAM, startOffset)
-                        .queryString(HttpClientConstants.LIMIT_PARAM, PAGINATION);
-                cacheResponse = wrapperCacheResponses.getIfPresent(httpRequest.getUrl());
-                if (Objects.isNull(cacheResponse)) {
-                    response = performHttpRequest(httpRequest);
-                    wrapperCacheResponses.put(httpRequest.getUrl(), response);
-                } else {
-                    response = cacheResponse;
-                }
-                docHolders.addAll(httpConverter.extractDocs(response.body()));
-            } catch (SERuntimeException seRuntimeException) {
-                LOGGER.warn("No data found for the given startOffset-[{}]", startOffset);
-            }
-        }
+        List<DocHolder> docHolders = httpConverter.extractDocs(combinatoryResult.getResult());
+
+        /*
+         * String url = generateCoordinationUrl(sncSearchUrlTemplate, globalId,
+         * sncSoftware, locale);
+         * HttpRequest httpRequest = restClient.get(url)
+         * .queryString(HttpClientConstants.LIMIT_PARAM, PAGINATION);
+         * HttpResponse<String> cacheResponse =
+         * wrapperCacheResponses.getIfPresent(httpRequest.getUrl());
+         * HttpResponse<String> response;
+         * if (Objects.isNull(cacheResponse)) {
+         * response = performHttpRequest(httpRequest);
+         * wrapperCacheResponses.put(httpRequest.getUrl(), response);
+         * } else {
+         * response = cacheResponse;
+         * }
+         * List<DocHolder> docHolders = httpConverter.extractDocs(response.body());
+         * while (response.isSuccessful()
+         * && Optional.ofNullable(response.getHeaders())
+         * .map(value -> value.get(HttpClientConstants.NEXT_OFFSET_HEADER))
+         * .isPresent()) {
+         * String startOffset =
+         * response.getHeaders().getFirst(HttpClientConstants.NEXT_OFFSET_HEADER);
+         * LOGGER.
+         * debug("Attempt to get next page of process by the following offset - [{}]",
+         * startOffset);
+         * try {
+         * httpRequest = restClient.get(url)
+         * .queryString(HttpClientConstants.START_OFFSET_PARAM, startOffset)
+         * .queryString(HttpClientConstants.LIMIT_PARAM, PAGINATION);
+         * cacheResponse = wrapperCacheResponses.getIfPresent(httpRequest.getUrl());
+         * if (Objects.isNull(cacheResponse)) {
+         * response = performHttpRequest(httpRequest);
+         * wrapperCacheResponses.put(httpRequest.getUrl(), response);
+         * } else {
+         * response = cacheResponse;
+         * }
+         * docHolders.addAll(httpConverter.extractDocs(response.body()));
+         * } catch (SERuntimeException seRuntimeException) {
+         * LOGGER.warn("No data found for the given startOffset-[{}]", startOffset);
+         * }
+         * }
+         */
         return docHolders;
     }
 
@@ -321,89 +358,33 @@ public class HttpClientWrapper implements HttpClient {
                 errorCode.getDescription());
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<DocHolder> getSelectionGuideReferences(String mainGuideValue, String locale) {
-        LOGGER.debug("[GET_SELECTION_GUIDE]Http client get the following product type - [{}]", mainGuideValue);
-        String url = generateCoordinationUrl(sncSearchUrlTemplate, mainGuideValue, sncSoftware, locale);
-        HttpRequest httpRequest = restClient.get(url);
-        HttpResponse<String> cacheResponse = wrapperCacheResponses.getIfPresent(httpRequest.getUrl());
-        HttpResponse<String> response;
-        if (Objects.isNull(cacheResponse)) {
-            response = performHttpRequest(httpRequest);
-            wrapperCacheResponses.put(httpRequest.getUrl(), response);
-        } else {
-            response = cacheResponse;
-        }
-        List<DocHolder> docHolders = httpConverter.extractDocs(response.body());
-        if (Objects.equals(docHolders.size(), PAGINATION)) {
-            while (response.isSuccessful()
-                    && Optional.ofNullable(response.getHeaders())
-                            .map(value -> value.get(HttpClientConstants.NEXT_OFFSET_HEADER))
-                            .isPresent()) {
-                String startOffset = response.getHeaders().getFirst(HttpClientConstants.NEXT_OFFSET_HEADER);
-                LOGGER.debug("Attempt to get next page of process by the following offset - [{}]", startOffset);
-                try {
-                    httpRequest = restClient.get(url)
-                            .queryString(HttpClientConstants.START_OFFSET_PARAM, startOffset);
-                    cacheResponse = wrapperCacheResponses.getIfPresent(httpRequest.getUrl());
-                    if (Objects.isNull(cacheResponse)) {
-                        response = performHttpRequest(httpRequest);
-                        wrapperCacheResponses.put(httpRequest.getUrl(), response);
-                    } else {
-                        response = cacheResponse;
-                    }
-                    docHolders.addAll(httpConverter.extractDocs(response.body()));
-                } catch (SERuntimeException seRuntimeException) {
-                    LOGGER.warn("No data found for the given startOffset-[{}]", startOffset);
-                }
-            }
-        }
-        return docHolders;
-    }
-
-    private String generateProductDescrUrl(String baseUrl, String id, String locale) {
-        Map<String, String> replaceMap = ImmutableMap.<String, String>builder()
-                .put(SNC_BASE_URL, baseUrl)
-                .put(SEServiceConstants.ID_CLIENT, id)
-                .put(SEServiceConstants.LOCALE, locale)
-                .build();
-        return StringSubstitutor.replace(PRODUCT_DESCR_TEMPLATE, replaceMap);
-    }
-
-    @Override
-    public String getDescription(String crId, String locale) {
-        LOGGER.debug("Thread {}. Getting description for CR [{}]", Thread.currentThread().getName(), crId);
-        String url = generateProductDescrUrl(sncUrl, crId, locale);
-        try {
-            GetRequest getRequest = restClient.get(url);
-            return performHttpRequest(getRequest).body();
-        } catch (ExternalSystemException exception) {
-            LOGGER.warn("Occurred an error during getting product with the following commercial reference - [{}]  "
-                    + "description, description will be set to n/a", crId);
-            return null;
-        }
-    }
-
     @Override
     public String getConfiguration(String selectionGuide, String locale) {
         Instant start = Instant.now();
-
-        String response = wrapperCache.getIfPresent(locale + selectionGuide);
-
-        if (Objects.isNull(response)) {
-            String url = generateSnCUrl(sncUrl, sncSelectUrlTemplate, selectionGuide, locale, sncSoftware);
-            HttpRequest request = restClient.get(url);
-            response = performHttpRequest(request).body();
-            if (!response.isEmpty()) {
-                wrapperCache.put(locale + selectionGuide, response);
-            }
-        }
-
+        S3RetrieveDataService s3RetrieveDataService = new S3RetrieveDataService();
         Instant finish = Instant.now();
-        LOGGER.info("[GET_ALL_CONFIGURATION(S&C)] Time execution - [{}ms]",
+        LOGGER.info("[GET_MAIN_TABLE(S&C)] Time execution - [{}ms]",
                 Duration.between(start, finish).toMillis());
-        return response;
+        return s3RetrieveDataService.retrieveConfiguration(dataEnvironment, sncSoftware, selectionGuide);
+
+        /*
+         * String response = wrapperCache.getIfPresent(locale + selectionGuide);
+         * 
+         * if (Objects.isNull(response)) {
+         * String url = generateSnCUrl(sncUrl, sncSelectUrlTemplate, selectionGuide,
+         * locale, sncSoftware);
+         * HttpRequest request = restClient.get(url);
+         * response = performHttpRequest(request).body();
+         * if (!response.isEmpty()) {
+         * wrapperCache.put(locale + selectionGuide, response);
+         * }
+         * }
+         * 
+         * Instant finish = Instant.now();
+         * LOGGER.info("[GET_ALL_CONFIGURATION(S&C)] Time execution - [{}ms]",
+         * Duration.between(start, finish).toMillis());
+         * return response;
+         */
     }
 
     private String generateSnCUrl(String baseUrl, String urlTemplate, String globalId, String locale,
