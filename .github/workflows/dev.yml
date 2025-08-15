@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Install Python dependencies
+        run: pip install boto3 jinja2
+
       # 2. Set up Java (adapt to your version)
       - name: Set up Java
         uses: actions/setup-java@v3
